@@ -2,12 +2,28 @@
 
 package db
 
-import ()
+import (
+	"database/sql"
+	"time"
+)
+
+type Puzzle struct {
+	ID        int64
+	ArrayStr  sql.NullString
+	CreatedAt time.Time
+}
 
 type User struct {
 	ID           int64
-	FirstName    string
-	LastName     string
 	Username     string
 	PasswordHash string
+	FirstName    string
+	LastName     string
+	CreatedAt    time.Time
+}
+
+type UserPuzzle struct {
+	UserID    int64
+	PuzzleID  int64
+	CreatedAt time.Time
 }

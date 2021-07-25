@@ -10,15 +10,15 @@ CREATE INDEX ON users(username);
 
 CREATE TABLE puzzles(
 	id BIGSERIAL PRIMARY KEY,
-	array TEXT UNIQUE NOT NULL
+	array_str VARCHAR(100),
     created_at TIMESTAMP(0) WITH TIME ZONE NOT NULL
 );
-CREATE INDEX ON puzzles(array);
+CREATE INDEX ON puzzles(array_str);
 
 CREATE TABLE user_puzzles(
 	user_id BIGSERIAL NOT NULL,
 	puzzle_id BIGSERIAL NOT NULL,
-    created_at TIMESTAMP(0) WITH TIME ZONE NOT NULL
+    created_at TIMESTAMP(0) WITH TIME ZONE NOT NULL,
 	FOREIGN KEY(user_id) REFERENCES users(id),
 	FOREIGN KEY(puzzle_id) REFERENCES puzzles(id),
 	UNIQUE(user_id, puzzle_id)
@@ -54,16 +54,20 @@ WHERE username = $1;
 
 
 -- name: CreatePuzzle :one
-INSERT INTO puzzles(array) VALUES ($1)
+INSERT INTO puzzles (
+	array_str
+) VALUES (
+	$1
+)
 RETURNING *;
 
 -- name: GetPuzzleByID :one
 SELECT * FROM puzzles
 WHERE id = $1 LIMIT 1;
 
--- name: GetPuzzleByArray :one
+-- name: GetPuzzleByarray_str :one
 SELECT * FROM puzzles
-WHERE array = $1 LIMIT 1;
+WHERE array_str = $1 LIMIT 1;
 
 
 -- name: CreateUserPuzzle :one
