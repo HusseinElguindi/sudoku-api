@@ -8,6 +8,23 @@ CREATE TABLE users(
 );
 CREATE INDEX ON users(username);
 
+CREATE TABLE puzzles(
+	id BIGSERIAL PRIMARY KEY,
+	array TEXT UNIQUE NOT NULL
+);
+CREATE INDEX ON puzzles(array);
+
+CREATE TABLE user_puzzles(
+	user_id BIGSERIAL NOT NULL,
+	puzzle_id BIGSERIAL NOT NULL,
+	FOREIGN KEY(user_id) REFERENCES users(id),
+	FOREIGN KEY(puzzle_id) REFERENCES puzzles(id),
+	UNIQUE(user_id, puzzle_id)
+);
+CREATE INDEX ON user_puzzles(user_id);
+CREATE INDEX ON user_puzzles(puzzle_id);
+CREATE INDEX ON user_puzzles(user_id, puzzle_id);
+
 -- name: GetUserByID :one
 SELECT * FROM users
 WHERE id = $1 LIMIT 1;
