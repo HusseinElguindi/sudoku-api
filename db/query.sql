@@ -1,9 +1,10 @@
-CREATE TABLE users (
+CREATE TABLE users(
 	id BIGSERIAL PRIMARY KEY,
-	first_name text NOT NULL,
-	last_name text NOT NULL,
-	username text NOT NULL UNIQUE,
-	password_hash text NOT NULL
+	username VARCHAR(25) UNIQUE NOT NULL,
+	password_hash VARCHAR(36) NOT NULL,
+	first_name VARCHAR(25) NOT NULL,
+	last_name VARCHAR(25) NOT NULL,
+    created_at TIMESTAMP(0) WITH TIME ZONE NOT NULL
 );
 CREATE INDEX ON users(username);
 
