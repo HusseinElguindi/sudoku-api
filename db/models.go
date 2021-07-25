@@ -3,13 +3,12 @@
 package db
 
 import (
-	"database/sql"
 	"time"
 )
 
 type Puzzle struct {
 	ID        int64
-	ArrayStr  sql.NullString
+	ArrayStr  string
 	CreatedAt time.Time
 }
 

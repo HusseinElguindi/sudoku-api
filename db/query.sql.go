@@ -5,7 +5,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createPuzzle = `-- name: CreatePuzzle :one
@@ -17,7 +16,7 @@ INSERT INTO puzzles (
 RETURNING id, array_str, created_at
 `
 
-func (q *Queries) CreatePuzzle(ctx context.Context, arrayStr sql.NullString) (Puzzle, error) {
+func (q *Queries) CreatePuzzle(ctx context.Context, arrayStr string) (Puzzle, error) {
 	row := q.db.QueryRowContext(ctx, createPuzzle, arrayStr)
 	var i Puzzle
 	err := row.Scan(&i.ID, &i.ArrayStr, &i.CreatedAt)
@@ -132,7 +131,7 @@ SELECT id, array_str, created_at FROM puzzles
 WHERE array_str = $1 LIMIT 1
 `
 
-func (q *Queries) GetPuzzleByarray_str(ctx context.Context, arrayStr sql.NullString) (Puzzle, error) {
+func (q *Queries) GetPuzzleByarray_str(ctx context.Context, arrayStr string) (Puzzle, error) {
 	row := q.db.QueryRowContext(ctx, getPuzzleByarray_str, arrayStr)
 	var i Puzzle
 	err := row.Scan(&i.ID, &i.ArrayStr, &i.CreatedAt)

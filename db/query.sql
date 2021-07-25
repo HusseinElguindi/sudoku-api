@@ -10,7 +10,7 @@ CREATE INDEX ON users(username);
 
 CREATE TABLE puzzles(
 	id BIGSERIAL PRIMARY KEY,
-	array_str VARCHAR(100),
+	array_str TEXT UNIQUE NOT NULL,
     created_at TIMESTAMP(0) WITH TIME ZONE NOT NULL
 );
 CREATE INDEX ON puzzles(array_str);
