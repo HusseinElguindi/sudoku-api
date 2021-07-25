@@ -5,7 +5,7 @@ CREATE TABLE users (
 	username text NOT NULL UNIQUE,
 	password_hash text NOT NULL
 );
-CREATE INDEX ON users (username);
+CREATE INDEX ON users(username);
 
 -- name: GetUserByID :one
 SELECT * FROM users
