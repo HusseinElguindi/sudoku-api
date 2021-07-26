@@ -1,0 +1,9 @@
+version: '3.4'
+
+services:
+  postgres:
+    env_file:
+      - postgres.env
+    image: postgres
+    ports:
+      - 5432:5432
