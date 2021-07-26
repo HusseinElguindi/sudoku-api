@@ -24,7 +24,7 @@ func createRandomPuzzle(t *testing.T) Puzzle {
 
 	// Compare the inserted values with the original values
 	require.Equal(t, puzzle.ArrayStr, arrayStr)
-	require.WithinDuration(t, puzzle.CreatedAt, time.Now(), time.Second)
+	require.WithinDuration(t, puzzle.CreatedAt, time.Now(), testTimeThreshold)
 
 	return puzzle
 }

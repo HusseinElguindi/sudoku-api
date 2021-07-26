@@ -33,7 +33,7 @@ func createRandomUser(t *testing.T) User {
 	require.Equal(t, user.LastName, params.LastName)
 	require.Equal(t, user.Username, params.Username)
 	require.Equal(t, user.PasswordHash, params.PasswordHash)
-	require.WithinDuration(t, user.CreatedAt, time.Now(), time.Second)
+	require.WithinDuration(t, user.CreatedAt, time.Now(), testTimeThreshold)
 
 	return user
 }

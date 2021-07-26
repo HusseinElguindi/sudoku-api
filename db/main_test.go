@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/brianvoe/gofakeit/v6"
 
@@ -12,8 +13,14 @@ import (
 )
 
 // Global test variables
-var testDB *sql.DB
-var testQueries *Queries
+var (
+	// Database globals
+	testDB      *sql.DB
+	testQueries *Queries
+
+	// Comparison defaults
+	testTimeThreshold = time.Second * 5
+)
 
 // TestMain prepares and initializes the global test variables.
 func TestMain(m *testing.M) {
