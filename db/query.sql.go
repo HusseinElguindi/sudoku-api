@@ -114,6 +114,18 @@ func (q *Queries) DeleteUserPuzzle(ctx context.Context, arg DeleteUserPuzzlePara
 	return err
 }
 
+const getPuzzleByArrayStr = `-- name: GetPuzzleByArrayStr :one
+SELECT id, array_str, created_at FROM puzzles
+WHERE array_str = $1 LIMIT 1
+`
+
+func (q *Queries) GetPuzzleByArrayStr(ctx context.Context, arrayStr string) (Puzzle, error) {
+	row := q.db.QueryRowContext(ctx, getPuzzleByArrayStr, arrayStr)
+	var i Puzzle
+	err := row.Scan(&i.ID, &i.ArrayStr, &i.CreatedAt)
+	return i, err
+}
+
 const getPuzzleByID = `-- name: GetPuzzleByID :one
 SELECT id, array_str, created_at FROM puzzles
 WHERE id = $1 LIMIT 1
@@ -121,18 +133,6 @@ WHERE id = $1 LIMIT 1
 
 func (q *Queries) GetPuzzleByID(ctx context.Context, id int64) (Puzzle, error) {
 	row := q.db.QueryRowContext(ctx, getPuzzleByID, id)
-	var i Puzzle
-	err := row.Scan(&i.ID, &i.ArrayStr, &i.CreatedAt)
-	return i, err
-}
-
-const getPuzzleByarray_str = `-- name: GetPuzzleByarray_str :one
-SELECT id, array_str, created_at FROM puzzles
-WHERE array_str = $1 LIMIT 1
-`
-
-func (q *Queries) GetPuzzleByarray_str(ctx context.Context, arrayStr string) (Puzzle, error) {
-	row := q.db.QueryRowContext(ctx, getPuzzleByarray_str, arrayStr)
 	var i Puzzle
 	err := row.Scan(&i.ID, &i.ArrayStr, &i.CreatedAt)
 	return i, err

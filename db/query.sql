@@ -65,7 +65,7 @@ RETURNING *;
 SELECT * FROM puzzles
 WHERE id = $1 LIMIT 1;
 
--- name: GetPuzzleByarray_str :one
+-- name: GetPuzzleByArrayStr :one
 SELECT * FROM puzzles
 WHERE array_str = $1 LIMIT 1;
 
