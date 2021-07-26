@@ -1,8 +1,8 @@
 # Usage:
-# make                # compile full application
-# make generate_sqlc  # generate sqlc db queries
+# make                # Compile full application
+# make generate_sqlc  # Generate sqlc db queries
 
 generate_sqlc:
-	# must be run in Unix system (for pwd)
-	# docker pull kjconroy/sqlc  # first run
+	# Must be run in Unix system (for pwd)
+	# docker pull kjconroy/sqlc  # First run
 	docker run --rm -v $(shell pwd):/src -w /src kjconroy/sqlc generate
