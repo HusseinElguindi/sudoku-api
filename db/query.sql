@@ -78,6 +78,11 @@ INSERT INTO user_puzzles (
 )
 RETURNING *;
 
+-- name: GetUserPuzzle :one
+SELECT * FROM user_puzzles
+WHERE user_id = $1 AND puzzle_id = $2
+LIMIT 1;
+
 -- name: ListUserPuzzles :many
 SELECT * FROM user_puzzles
 WHERE user_id = $1

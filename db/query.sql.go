@@ -176,6 +176,24 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 	return i, err
 }
 
+const getUserPuzzle = `-- name: GetUserPuzzle :one
+SELECT user_id, puzzle_id, created_at FROM user_puzzles
+WHERE user_id = $1 AND puzzle_id = $2
+LIMIT 1
+`
+
+type GetUserPuzzleParams struct {
+	UserID   int64
+	PuzzleID int64
+}
+
+func (q *Queries) GetUserPuzzle(ctx context.Context, arg GetUserPuzzleParams) (UserPuzzle, error) {
+	row := q.db.QueryRowContext(ctx, getUserPuzzle, arg.UserID, arg.PuzzleID)
+	var i UserPuzzle
+	err := row.Scan(&i.UserID, &i.PuzzleID, &i.CreatedAt)
+	return i, err
+}
+
 const listUserPuzzles = `-- name: ListUserPuzzles :many
 SELECT user_id, puzzle_id, created_at FROM user_puzzles
 WHERE user_id = $1
