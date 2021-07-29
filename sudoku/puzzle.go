@@ -110,7 +110,7 @@ func (p Puzzle) colContains(col, val PuzzleInt) bool {
 // boxContains returns whether or not the box contains val.
 func (p Puzzle) boxContains(row, col, val PuzzleInt) bool {
 	// Calculate the current box's coordinates (top left position).
-	boxRow, boxCol := (row/p.boxWidth)*p.boxWidth, (col/p.boxHeight)*p.boxHeight
+	boxRow, boxCol := (row/p.boxHeight)*p.boxHeight, (col/p.boxWidth)*p.boxWidth
 
 	// Iterate over all cells in the current box.
 	for row = 0; row < p.boxHeight; row++ {
