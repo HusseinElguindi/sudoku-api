@@ -2,52 +2,62 @@
 Package sudoku implements a flexible recursive backtracking Sudoku puzzle solver library.
 
 The recommended usage is:
-	arr := [][]pInt{...}
+	arr := [][]PuzzleInt{...}
 	puzzle := sudoku.NewPuzzle(arr) // arr should not be edited anymore
-	fmt.Println(puzzle.Pretty())
-	puzzle.Solve()
+
+	if solved := puzzle.Solve(); solved {
+		fmt.Println("Solved!")
+	} else {
+		fmt.Println("Could not solve (invalid puzzle).")
+	}
+	// Read the value of puzzle.Arr or arr after solve.
+	...
 	fmt.Println(puzzle.Pretty())
 */
 package sudoku
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"math"
 	"strings"
 )
 
-// TODO: rethink the whole hVal, vVal system
-// it is not needed, we can keep a set for the horizontal that we're working on
-
-var (
-	ErrInvalidPuzzle = errors.New("invalid/unsolvable Sudoku puzzle")
-)
-
+// PuzzleInt reprents the integer type used in the puzzle.
 type PuzzleInt = uint16
+
+// Puzzle represents a Sudoku puzzle with an underlying matrix.
 type Puzzle struct {
 	Arr                 [][]PuzzleInt
 	boxHeight, boxWidth PuzzleInt
 
-	// Acts as a hashset for the values in a row (hVals) or column (vVals).
-	// Could use bit manipulation, []int.
-	// hVals, vVals [][]bool
+	// Acts as a hashset for the values in a row (hVals), column (vVals), or box (bVals).
+	// Could use bit manipulation, []PuzzleInt.
+	// hVals, vVals, bVals []PuzzleInt
 }
 
+// NewPuzzle constructs a new puzzle with the passed matrix. Options may be passed
+// to further configure a puzzle. arr should not be altered after puzzle creation as
+// it is used as the underlying array for the puzzle. New puzzles should not reuse
+// an old Puzzle struct, but should construct a new Puzzle.
 func NewPuzzle(arr [][]PuzzleInt, opts ...puzzleOption) Puzzle {
-	// TODO: compare puzzle array size with max of PuzzleInt
+	// TODO: compare puzzle array size with max of PuzzleInt.
 
-	// Validate number of rows
-	if len(arr) == 0 {
+	// Validate number of rows.
+	rows := len(arr)
+	if rows == 0 {
 		panic("invalid number of puzzle rows (0)")
 	}
-	// Validate number of columns
+	// Validate number of columns.
 	cols := len(arr[0])
 	if cols == 0 {
 		panic("invalid number of puzzle columns (0)")
 	}
-	// Ensure all rows have the same number of columns
+	// Ensure the puzzle is a square.
+	if rows != cols {
+		panic("invalid puzzle, must be a square")
+	}
+	// Ensure all rows have the same number of columns.
 	for _, row := range arr {
 		if len(row) != cols {
 			panic("all rows must have a uniform number of columns")
@@ -56,7 +66,7 @@ func NewPuzzle(arr [][]PuzzleInt, opts ...puzzleOption) Puzzle {
 
 	puzzle := Puzzle{
 		Arr: arr,
-		// Box dimensions are defaulted to the square root of each puzzle side.
+		// Box dimensions default to the square root of each puzzle side.
 		boxHeight: PuzzleInt(math.Sqrt(float64(len(arr)))),
 		boxWidth:  PuzzleInt(math.Sqrt(float64(cols))),
 	}
@@ -123,6 +133,55 @@ func (p Puzzle) isValidPos(row, col, val PuzzleInt) bool {
 		!p.boxContains(row, col, val) // Another position in the box has the same value
 }
 
+// nextEmptyPos returns the next unoccupied position of the puzzle. If there are none, ok is false.
+// The search begins from the passed start row and col position, which is inclusive.
+func (p Puzzle) nextEmptyPos(startRow, startCol PuzzleInt) (row, col PuzzleInt, ok bool) {
+	row, col = startRow, startCol
+	for ; row < PuzzleInt(len(p.Arr)); row++ {
+		for ; col < PuzzleInt(len(p.Arr[0])); col++ {
+			if p.Arr[row][col] == 0 {
+				return row, col, true
+			}
+		}
+		col = 0 // Reset col from startCol after first iteration
+	}
+	return
+}
+
+// Solve solves modifies the underlying array to solve the Sudoku puzzle recursively, backtracking
+// when an invalid value is guessed, until a solution is found. Solve returns true when a puzzle is
+// successfully solved, otherwise, the puzzle was unsolvable.
+func (p Puzzle) Solve() bool {
+	// TODO: iterate over every point to validate puzzle before solving.
+	// ^ could also setup the bitset during the iteration.
+	return p.solve(0, 0)
+}
+func (p Puzzle) solve(row, col PuzzleInt) bool {
+	// Find the next empty position, if any.
+	row, col, ok := p.nextEmptyPos(row, col)
+	if !ok {
+		return true
+	}
+
+	// Try all possible values, recurse, and backtrack.
+	// TODO: Can be optimized using memoization via sets.
+	for val := PuzzleInt(1); val <= PuzzleInt(len(p.Arr)); val++ {
+		if !p.isValidPos(row, col, val) {
+			continue
+		}
+		p.Arr[row][col] = val
+		if ok := p.solve(row, col); ok {
+			return ok
+		}
+		// Reset position value next attempt (backtrack)
+		p.Arr[row][col] = 0
+	}
+
+	// Already attempted all possible values for this position.
+	return false
+}
+
+// String implements the Stringer interface for Puzzle by encoding into JSON.
 func (p Puzzle) String() string {
 	b, err := json.Marshal(p.Arr)
 	if err != nil {
@@ -161,50 +220,4 @@ func (p Puzzle) Pretty() string {
 		sb.WriteByte('\n')
 	}
 	return sb.String()
-}
-
-// nextEmptyPos returns the next unoccupied position of the puzzle. If there are none, ok is false.
-// The search begins from the passed start row and col position, which is inclusive.
-func (p Puzzle) nextEmptyPos(startRow, startCol PuzzleInt) (row, col PuzzleInt, ok bool) {
-	row, col = startRow, startCol
-	for ; row < PuzzleInt(len(p.Arr)); row++ {
-		for ; col < PuzzleInt(len(p.Arr[0])); col++ {
-			if p.Arr[row][col] == 0 {
-				return row, col, true
-			}
-		}
-		col = 0 // Reset col from startCol
-	}
-	return
-}
-
-func (p Puzzle) Solve() bool {
-	// TODO: iterate over every point to validate puzzle before solving.
-	return p.solve(0, 0)
-}
-
-func (p Puzzle) solve(row, col PuzzleInt) bool {
-	// Find the next empty position, if any.
-	row, col, ok := p.nextEmptyPos(row, col)
-	if !ok {
-		return true
-	}
-
-	// Try all possible values, recurse, and backtrack.
-	// Can be optimized using memoization via sets.
-	// TODO: Puzzle must always be a square?
-	for val := PuzzleInt(1); val <= PuzzleInt(len(p.Arr)); val++ {
-		if !p.isValidPos(row, col, val) {
-			continue
-		}
-		p.Arr[row][col] = val
-		if ok := p.solve(row, col); ok {
-			return ok
-		}
-		// Reset position value next attempt (backtrack)
-		p.Arr[row][col] = 0
-	}
-
-	// Already attempted all possible values for this position.
-	return false
 }
