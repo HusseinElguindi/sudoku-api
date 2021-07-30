@@ -187,3 +187,80 @@ func TestBoxContains(t *testing.T) {
 		}
 	}
 }
+
+func TestValidPos(t *testing.T) {
+	type test struct {
+		row, col, val PuzzleInt
+		expected      bool
+	}
+	testCases := []struct {
+		arr   [][]PuzzleInt
+		tests []test
+	}{
+		{
+			arr: [][]PuzzleInt{
+				{0, 0, 0, 0, 0, 0, 0, 0, 0},
+				{0, 0, 0, 0, 0, 0, 0, 0, 0},
+				{0, 0, 0, 0, 0, 0, 0, 0, 0},
+				{0, 0, 0, 0, 0, 0, 0, 0, 0},
+				{0, 0, 0, 0, 5, 0, 0, 0, 0},
+				{0, 0, 0, 0, 0, 0, 0, 0, 0},
+				{0, 0, 0, 0, 0, 0, 0, 0, 0},
+				{0, 0, 0, 0, 0, 0, 0, 0, 0},
+				{0, 0, 1, 0, 0, 0, 0, 0, 0},
+			},
+			tests: []test{
+				{9, 9, 1, false}, // Out of bounds
+				{4, 4, 5, false}, // Position is not vacant
+				{4, 3, 5, false}, // Duplicate digit on row
+				{3, 4, 5, false}, // Duplicate digit on col
+				{5, 5, 5, false}, // Duplicate digit in box
+				{0, 0, 1, true},
+			},
+		},
+	}
+	for _, tc := range testCases {
+		puzzle := NewPuzzle(tc.arr)
+		for _, test := range tc.tests {
+			require.Equal(t, test.expected, puzzle.isValidPos(test.row, test.col, test.val))
+		}
+	}
+}
+
+func TestNextEmptyPos(t *testing.T) {
+	type test struct {
+		expectRow, expectCol PuzzleInt
+		expectedOk           bool
+	}
+	testCases := []struct {
+		arr   [][]PuzzleInt
+		tests []test
+	}{
+		{
+			arr: [][]PuzzleInt{
+				{2, 2, 2},
+				{2, 0, 2},
+				{2, 2, 0},
+			},
+			tests: []test{
+				{1, 1, true},
+				{2, 2, true},
+				{0, 0, false},
+			},
+		},
+	}
+	for _, tc := range testCases {
+		puzzle := NewPuzzle(tc.arr)
+		var startRow, startCol PuzzleInt
+		for _, test := range tc.tests {
+			row, col, ok := puzzle.nextEmptyPos(startRow, startCol)
+			require.Equal(t, test.expectedOk, ok)
+			if ok {
+				require.Equal(t, test.expectRow, row)
+				require.Equal(t, test.expectCol, col)
+				puzzle.Arr[row][col] = 2 // Occupy position
+			}
+			startRow, startCol = test.expectRow, test.expectCol
+		}
+	}
+}
