@@ -27,8 +27,10 @@ func (bs *bitSet) Len() int {
 
 func (bs *bitSet) String() string {
 	sb := strings.Builder{}
+	sb.WriteString("{ ")
 	for i := 0; i < bs.Len(); i++ {
-		sb.WriteString(fmt.Sprintf("%d: %d  ", i, bs.Get(i)))
+		sb.WriteString(fmt.Sprintf("%d: %d ", i, bs.Get(i)))
 	}
+	sb.WriteByte('}')
 	return sb.String()
 }
